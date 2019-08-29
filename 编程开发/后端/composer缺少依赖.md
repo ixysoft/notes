@@ -9,3 +9,4 @@ sudo apt update # 刷新软件源
 执行完上面的代码,过程一切顺利,然后在终端执行`sudo apt search php`,最新的几个PHP版本都在软件源里,这里我下载了php7.2,php7.2-fpm.  
 安装完新的PHP之后,因为在nginx中依然是7.0的sock,所以把nginx站点配置中与7.0相关的配置全部改成了7.2  
 上面的问题解决之后,在项目根目录执行`composer install`,依然报错,不过PHP版本的问题已经解决,仔细观察了一下各个问题,都有ext-xxx类似的字段,所以大概知道是PHP扩展缺失导致的问题,ext-后面的xxx表示扩展的名字,在debian里面需要什么扩展直接输入`sudo apt install php7.2-xxx`,不同的扩展对应不同的xxx.  所有的扩展问题解决后,执行`composer install`就完成了远程项目在本地的构建了.
+
