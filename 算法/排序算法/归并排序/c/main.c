@@ -1,5 +1,6 @@
 /**
  *  代码来源于维基百科.
+ *  额外的空间消耗可以通过一些手法去除
  **/
 #include<stdio.h>
 #include<stdlib.h>
