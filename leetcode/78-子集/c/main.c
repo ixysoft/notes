@@ -10,9 +10,9 @@ int main(){
     int begin = 0;
     int end = 1 << size;
     int tmp,bit;
-    for(i = begin; i < end; i++){
-        for(tmp = i,bit=0; tmp > 0; tmp>>=1,bit++){
-            if(tmp%2)printf("%d ",arr[bit]);
+    for(i = begin; i < end; i++){   //遍历所有的情况
+        for(tmp = i,bit=0; tmp > 0; tmp>>=1,bit++){ //依次遍历当前数字的有效二进制位
+            if(tmp%2)printf("%d ",arr[bit]);    //输出符合要求的序列
         }
         puts("");
     }
