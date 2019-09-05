@@ -1,3 +1,7 @@
+#if 0
+编译: gcc -o main main.c -lpthread
+编程中遇到的一些问题,printf中如果没有达到一定长度,且没有回车输出的情况下,字符并不会刷新到屏幕上,需要用fflush(stdout)刷新一下
+#endif
 #include<stdio.h>
 #include<pthread.h>
 #include<unistd.h>
