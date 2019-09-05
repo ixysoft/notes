@@ -16,6 +16,7 @@ void monkey_sort(int arr[],int size){
     while(!isSorted(arr,size)){
         rnd1 = rand() % size;
         rnd2 = rand() % size;
+        //任意调换两个元素
         int tmp = arr[rnd1];
         arr[rnd1] = arr[rnd2];
         arr[rnd2] = tmp;
