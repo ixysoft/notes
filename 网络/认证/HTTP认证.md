@@ -5,6 +5,7 @@
 3. 数字证书: 仅限本人持有的信息
 4. 生物认证: 指纹和虹膜等本人的生理信息
 5. IC卡等: 仅限本人持有的信息  
+
 **HTTP使用的认证方式:**  
 - Basic认证(基本认证)  
 - Digest认证(摘要认证)  
@@ -64,7 +65,7 @@ Authorization: Digest username="guest",realm="DIGEST",nonce="MOSQZ0itBAA=44abb67
 HTTP/1.1 200 OK
 Authentication-info: rspauth="f218e9ddb407a3d16f2f7d2c4097e900",cnonce="083c875dcb2ca740",nc=00000001,qop=auth
 ```
-## SSL认证
+## 3. SSL认证
 一般配合其他认证使用.  
-## 表单认证
+## 4. 表单认证
 一般常见的认证实现方式.  
