@@ -15,3 +15,12 @@ sudo dpkg -i wiringpi-latest.deb
 update-alternatives --config x-session-manager
 ```
 该指令执行完之后,会出现一个选择界面,在界面中选择需要的桌面即可.  
+4. 树莓派国内源
+```
+# 编辑 `/etc/apt/sources.list` 文件，删除原文件所有内容，用以下内容取代：
+deb http://mirrors.tuna.tsinghua.edu.cn/raspbian/raspbian/ buster main non-free contrib
+deb-src http://mirrors.tuna.tsinghua.edu.cn/raspbian/raspbian/ buster main non-free contrib
+
+# 编辑 `/etc/apt/sources.list.d/raspi.list` 文件，删除原文件所有内容，用以下内容取代：
+deb http://mirrors.tuna.tsinghua.edu.cn/raspberrypi/ buster main ui
+```
