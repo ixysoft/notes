@@ -24,3 +24,12 @@ deb-src http://mirrors.tuna.tsinghua.edu.cn/raspbian/raspbian/ buster main non-f
 # 编辑 `/etc/apt/sources.list.d/raspi.list` 文件，删除原文件所有内容，用以下内容取代：
 deb http://mirrors.tuna.tsinghua.edu.cn/raspberrypi/ buster main ui
 ```
+5. 给树莓派添加LCD屏幕驱动  
+```
+1. 从github克隆LCD-show需要的驱动库
+git clone https://github.com/goodtft/LCD-show.git
+2. 克隆完成后,切换到库目录
+cd LCD-show
+3. 执行屏幕对应的驱动文件,我的是3.5寸的屏幕,所以执行LCD35-show
+./LCD35-show
+```
