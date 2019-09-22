@@ -33,3 +33,37 @@ cd LCD-show
 3. 执行屏幕对应的驱动文件,我的是3.5寸的屏幕,所以执行LCD35-show
 ./LCD35-show
 ```
+6. 添加自定义分辨率  
+有时候树莓派支持的分辨率可能并不能跟自己电脑显示器的分辨率对应.  
+这个时候我们可以自己新建一个分辨率  
+```
+1. 计算分辨率参数
+cvt 1366 768
+将会输出
+# 1368x768 59.88 Hz (CVT) hsync: 47.79 kHz; pclk: 85.25 MHz
+Modeline "1368x768_60.00"   85.25  1368 1440 1576 1784  768 771 781 798 -hsync +vsync
+2. 新建分辨率
+xrandr --newmode "1368x768_60.00"   85.25  1368 1440 1576 1784  768 771 781 798 -hsync +vsync
+3. 将分辨率添加到显示输出
+xrandr --addmode HDMI-1 1368x768_60.00
+如果不知道显示输出怎么填可以执行一次xrandr
+4. 设置显示输出使用该分辨率
+xrandr --output HDMI-1 --mode 1368x768_60.00
+5. 持久化
+现在终端中执行这些指令,如果出现什么问题,重启即可,如果没有问题,可以将2,3,4步的命令写入到
+/etc/X11/Xsession.d/30x11-set_resolution中
+```
+6. 安装屏幕键盘  
+```
+apt install florence
+执行florence命令将会弹出屏幕键盘.
+如果出现org.florence没有安装的信息,则执行sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
+之后再次执行florence命令即可.  
+```
+安装可以在登陆界面显示的屏幕键盘
+sudo apt-get install lightdm-gtk-greeter
+之后编辑配置文件
+vim /etc/lightdm/lightdm-gtk-greeter.conf
+编辑配置文件:
+[greeter]
+keyboard=florence --no-gnome --focus &
