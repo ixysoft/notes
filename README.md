@@ -1,6 +1,9 @@
 # notes
 算法,数据结构及各种小想法
 以后可能还会增加其他新的笔记内容
+[Gitee](https://gitee.com/francisx/notes.git)  
+[Github](https://github.com/ixysoft/notes.git)  
+
 ## 目录说明
 1. 算法  
 算法相关的笔记
