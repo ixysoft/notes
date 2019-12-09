@@ -1,10 +1,12 @@
 # notes
 算法,数据结构及各种小想法  
 以后可能还会增加其他新的笔记内容  
-[Gitee](https://gitee.com/francisx/notes.git)  
-[Github](https://github.com/ixysoft/notes.git)  
+[Gitee](https://gitee.com/francisx/notes.git):  
 [![star](https://gitee.com/francisx/notes/badge/star.svg?theme=dark)](https://gitee.com/francisx/notes/stargazers)
 [![fork](https://gitee.com/francisx/notes/badge/fork.svg?theme=dark)](https://gitee.com/francisx/notes/members)  
+[Github](https://github.com/ixysoft/notes.git):  
+![Github Stars](https://img.shields.io/github/stars/ixysoft/notes)  
+![Github Forks](https://img.shields.io/github/forks/ixysoft/notes)  
 
 ## 目录说明
 1. 算法  
