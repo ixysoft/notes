@@ -3,7 +3,7 @@
 以后可能还会增加其他新的笔记内容  
 [Gitee](https://gitee.com/francisx/notes.git)  
 [Github](https://github.com/ixysoft/notes.git)  
-[![star](https://gitee.com/francisx/notes/badge/star.svg?theme=dark)](https://gitee.com/francisx/notes/stargazers)  
+[![star](https://gitee.com/francisx/notes/badge/star.svg?theme=dark)](https://gitee.com/francisx/notes/stargazers)
 [![fork](https://gitee.com/francisx/notes/badge/fork.svg?theme=dark)](https://gitee.com/francisx/notes/members)  
 
 ## 目录说明
