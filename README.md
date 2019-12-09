@@ -5,8 +5,8 @@
 [![star](https://gitee.com/francisx/notes/badge/star.svg?theme=dark)](https://gitee.com/francisx/notes/stargazers)
 [![fork](https://gitee.com/francisx/notes/badge/fork.svg?theme=dark)](https://gitee.com/francisx/notes/members)  
 [Github](https://github.com/ixysoft/notes.git):  
-![Github Stars](https://img.shields.io/github/stars/ixysoft/notes?style=flat&logo=github&color=brightgreen)
-![Github Forks](https://img.shields.io/github/forks/ixysoft/notes?style=float@logo=github&color=blueviolet)  
+![Github Stars](https://img.shields.io/github/stars/ixysoft/notes?style=flat&logo=github&color=brightgreen&label=Starts)
+![Github Forks](https://img.shields.io/github/forks/ixysoft/notes?style=float@logo=github&color=blueviolet&label=Forks)  
 
 ## 目录说明
 1. 算法  
