@@ -7,9 +7,6 @@ def getBits(a):
     if a == 0:
         return 0
     return floor(log(a,16))+1
-bits = getBits(a)
-padBits = int((bits//6+1)*6 - bits)%6
-na = a << (4*padBits)
 
 # 获取16进制数编码
 def base64(a):
@@ -32,5 +29,9 @@ except Exception: # python3
 except: #异常处理
     print('数字格式错误')
     os._exit(1)
+
+bits = getBits(a)
+padBits = int((bits//6+1)*6 - bits)%6
+na = a << (4*padBits)
 
 print(base64(na))
