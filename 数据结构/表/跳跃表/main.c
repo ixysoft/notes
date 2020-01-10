@@ -168,8 +168,8 @@ void visit(pskiplist list){
     for(;head != NULL; head = head->next_level){
         pnode tmp = NULL;
         for(tmp = head->head; tmp != NULL; tmp = tmp->next){
-            printf("[%d]%d",tmp->key,tmp->data->val);
-            //printf("[%d]",tmp->key);
+            //printf("[%d]%d",tmp->key,tmp->data->val);
+            printf("[%d]",tmp->key);
             //printf("[%d]%p",tmp->key,tmp->next_level,tmp->data->val);
             if(tmp->next) printf("->");
         }
@@ -207,6 +207,75 @@ int search(pskiplist list,int key,int * ret){
     return 0;
 }
 
+//删除元素
+int _del(pskiplist *pList,phead *pHead,pnode * proot,int key){
+    //如果为首元素,则将首元素设置为key元素的下一个元素
+    pskiplist list = * pList;
+    if(list == NULL) return 0;  //删除失败
+    phead head = pHead == NULL ? NULL : *pHead;
+    if(head == NULL) return 0;  //删除失败
+    pnode tmp = proot == NULL ? NULL : *proot;
+    if(tmp == NULL) return 0;   //没有找到
+    if(head->head->key == key){ //第一个元素
+        pnode next = head->head->next;
+        if(head->next_level == NULL)
+            free(head->head->data);
+        free(head->head);
+        head->head = next;
+        if(head->head == NULL){  //当前层最后一个元素
+            phead nextHead = list->head->next_level;
+            if(nextHead)
+                nextHead->prev_level = NULL;
+            free(list->head);
+            list->head = nextHead;
+            list->level--;
+        }
+
+        if(list->head == NULL){ //删除该表
+            free(list);
+            *pList = NULL;
+        }
+        if(head->next_level){   //非最后一层
+            return _del(pList,&(head->next_level),&(head->next_level->head),key);    //递归删除
+        }
+        return 1;
+    }else if(head->head->key > key){    //首元素过大
+        if(head->next_level == NULL) return 0;
+        return _del(pList,&(head->next_level),&(head->next_level->head),key);
+    }else{  //存在下一个节点
+        if(tmp->next != NULL){    //下一个元素存在
+            for(;tmp->next != NULL && tmp->next->key < key;tmp = tmp->next);
+
+            printf("Find %d,Cur: %d\n",key,tmp->key);
+            if(tmp->next == NULL){  //到达队尾
+                if(tmp->next_level == NULL) return 0;   //删除失败
+                return _del(pList,&(head->next_level),&(tmp->next_level),key);   //没有到达最后一层,查找下一层
+            }else if(tmp->next->key == key){  //下一个元素为key
+                pnode keyNode = tmp->next;
+                tmp->next = keyNode->next;
+                if(tmp->next == NULL)
+                    free(keyNode->data);
+                free(keyNode);
+                return _del(pList,&(head->next_level),&(tmp->next_level),key);
+            }else if(tmp == head->head){//第一个元素
+                return _del(pList,&(head->next_level),&(head->next_level->head),key);
+            }else{  //后面的节点比需要找的节点大
+                return _del(pList,&(head->next_level),&(tmp->next_level),key);
+            }
+        }else if(tmp == head->head){
+            return _del(pList,&(head->next_level),&(head->next_level->head),key);
+        }
+    }
+    return -1;
+}
+
+int del(pskiplist *pList,int key){
+    pskiplist list = *pList;
+    phead * pHead = (list == NULL ? NULL : &(list->head));
+    pnode * pRoot = (pHead == NULL ? NULL :&(list->head->head));
+    return _del(pList,pHead,pRoot,key);
+}
+
 int main(){
     srand(time(NULL));
     gen(arr,SIZE,40);
@@ -215,17 +284,18 @@ int main(){
     int d[] = {
         1,3,4,0,0,5,8,5,9,0
     };
-    int size = sizeof(arr) / sizeof(arr[0]);
+    int size = sizeof(d) / sizeof(d[0]);
     for(i = 0; i < size; i++){
-        insert(&list,arr[i],i);
+        insert(&list,d[i],i);
         //visit(list);
         //puts("");
     }
+    del(&list,3);
     visit(list);
     int ret = 0;
     int key = 4;
     if(search(list,key,&ret)){
-        printf("val:%d\n",ret);
+        printf("key:%d=>val:%d\n",key,ret);
     }else{
         printf("没有找到:%d\n",key);
     }
