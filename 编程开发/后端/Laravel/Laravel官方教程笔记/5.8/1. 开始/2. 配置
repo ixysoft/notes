@@ -1,0 +1,116 @@
+# 配置  
+## 1. 介绍
+laravel所有的配置文件都放在`config`目录下
+## 2. 环境配置  
+在不同的环境中使用不同的配置是一项非常有意义的功能.  
+如果我们需要将同一个项目部署到不同的环境中,我们可能会希望使用不同的配置.  
+为了实现这一点,laravel采用了名为`DotEnv`的php库.在默认的情况下,laravel中包含一个`.env.example`文件.  
+使用composer安装laravel时,这个文件会被自动命名为`.env`
+需要注意的是我们不应该将`.env`文件提交到我们的版本库中.否则一些关键的信息可能会暴露在版本库中.  
+我们也可以创建一个形如`.env.testing`的文件用于设定跟测试有关的配置.  
+在进行PHPUnit测试时,这个文件会覆盖`.env`中的配置.我们课可以在artisan命令后加上`--env=testing`指定环境  
+## 4. 环境变量类型  
+所有的都是以字符串的形式被解析出来,但是对于一些特殊的值,`env()`函数会更加灵活的返回一些类型:  
+`.env`|env()
+---|---
+true|(bool)true
+(true)|(bool)true
+false|(bool)false
+(false)|(bool)false
+空|(string)''
+(空)|(string)''
+null|(null)null
+(null)|(null)null  
+
+如果需要设置的配置值中包含空格,我们需要用双引号将配置值括起来:  
+```
+APP_NAME="My Application"
+```
+## 访问环境配置  
+使用env函数访问设定好的配置
+```
+'debug' => env('APP_DEBUG',false),
+```  
+## 5. 检测当前的环境  
+在laravel中我们可以通过App`Facade`中的`environment`方法访问当前的环境.  
+```
+$environment = App::environment();
+```
+如果`environment`中指定了环境名称,则表示检测是否处于指定的环境中.  
+```
+if ( App::environment('local') ) {
+    // 当前环境为local环境
+}
+
+if ( App::environment(['local','staging']) ) {
+    // 当前环境为local或者staging环境
+}
+```
+该方法依据`APP_ENV`判断当前环境  
+## 6. 在调试信息中隐藏环境变量  
+这个功能非常重要.在系统发生异常并且`APP_DEBUG`被设置为`true`时,laravel的调试界面会显示出所有的环境变量.  
+我们可能会隐藏一些变量,此时我们可以通过修改`config/app.php`配置文件中的`debug_blacklist`选项实现.  
+文件格式如下:  
+```
+return [
+
+    // ...
+
+    'debug_blacklist' => [
+        '_ENV' => [
+            'APP_KEY',
+            'DB_PASSWORD',
+        ],
+
+        '_SERVER' => [
+            'APP_KEY',
+            'DB_PASSWORD',
+        ],
+
+        '_POST' => [
+            'password',
+        ],
+    ],
+];
+```  
+## 7. 访问配置值  
+如果我们需要访问config目录下指定文件中的某个值,我们可以使用`config`全局帮助函数.  
+比如如果我们需要访问`app.php`文件中的timezone,我们可以现成.  
+```
+$value = config('app.timezone')
+```
+我们可以通过该函数设定运行时的配置:  
+```
+config(['app.timezone'=>'Asia/Shanghai'])
+```  
+## 8. 配置缓存  
+如果有提升应用速度的需求,你可以通过artisan的`config:cache`命令将所有的配置文件缓存到一个文件中.  
+系统会自动将所有的配置包含到一个文件中以提升框架载入速度.  
+在production发布的时候,最好是执行一下`php artisan config:cache`以提升应用的速度.  
+如果我们在发布的过程中执行了`config:cache`,我们需要确保所有的env函数只存在于配置文件中,一旦配置被缓存,`.env`将不会被解析,此时执行`env`函数会返回一个null.  
+## 9. 维护模式  
+如果我们的网站出现了暂时无法解决的问题或者正在升级时,此时我们可能会需要将网站置于维护模式,以保证所有的请求将会被导到提前定义好的页面中.  
+维护模式检测默认被包含再默认的中间件栈中.如果应用处于维护模式,`MaintenanceModeException`异常将会被抛出,并且附带503状态响应.  
+开启维护模式:  
+```
+php artisan down
+```  
+我们也可以自定义提示文字及重试时间选项.  
+```
+# 正在更新数据库,60s后重试
+php artisan down --message="正在更新数据库" --retry=60
+```  
+其中`message`可以被我们显示到网站上或者记录在日志中,`retry`的值会以`Retry-After`HTTP头的值的形式返回.  
+有时候我们在维护模式时,可能会想要让指定ip或者ip端的用户正常访问网站,此时我们可以通过`allow`选项指定:  
+```
+php artisan down --allow=127.0.0.1 --allow=192.168.0.0/16
+```  
+在一切准备好之后,我们可以退出维护模式:  
+```
+php artisan up
+```
+如果需要自定义默认维护模式的页面,我们可以修改默认的模板:`resources/views/errors/503.blade.php`  
+### 维护模式与队列  
+当应用处于维护模式时,`queue jobs`将不会被处理,当我们退出维护模式时,这些没有处理的队列任务才会被继续处理.  
+### 维护模式的替代方案  
+由于维护模式需要应用有一段时间处于维护状态,我们可以考虑使用`Envoyer`来实现0维护时间发布.  
