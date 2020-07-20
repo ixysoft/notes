@@ -1,0 +1,3407 @@
+Hello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in pythonHello World!
+这是一个你从来没有玩过的船新版本
+在计算机数据处理中，霍夫曼编码使用变长编码表对源符号（如文件中的一个字母）进行编码，其中变长编码表是通过一种评估来源符号出现几率的方法得到的，出现几率高的字母使用较短的编码，反之出现几率低的则使用较长的编码，这便使编码之后的字符串的平均长度、期望值降低，从而达到无损压缩数据的目的。
+
+例如，在英文中，e的出现几率最高，而z的出现概率则最低。当利用霍夫曼编码对一篇英文进行压缩时，e极有可能用一个比特来表示，而z则可能花去25个比特（不是26）。用普通的表示方法时，每个英文字母均占用一个字节，即8个比特。二者相比，e使用了一般编码的1/8的长度，z则使用了3倍多。倘若我们能实现对于英文中各个字母出现概率的较准确的估算，就可以大幅度提高无损压缩的比例。
+
+霍夫曼树又称最优二叉树，是一种带权路径长度最短的二叉树。所谓树的带权路径长度，就是树中所有的叶结点的权值乘上其到根结点的路径长度（若根结点为0层，叶结点到根结点的路径长度为叶结点的层数）。树的路径长度是从树根到每一结点的路径长度之和，记为WPL=（W1*L1+W2*L2+W3*L3+...+Wn*Ln），N个权值Wi（i=1,2,...n）构成一棵有N个叶结点的二叉树，相应的叶结点的路径长度为Li（i=1,2,...n）。可以证明霍夫曼树的WPL是最小的。
+
+历史
+1951年，霍夫曼在麻省理工学院（MIT）攻读博士学位，他和修读信息论课程的同学得选择是完成学期报告还是期末考试。导师罗伯特·法诺（Robert Fano）出的学期报告题目是：查找最有效的二进制编码。由于无法证明哪个已有编码是最有效的，霍夫曼放弃对已有编码的研究，转向新的探索，最终发现了基于有序频率二叉树编码的想法，并很快证明了这个方法是最有效的。霍夫曼使用自底向上的方法构建二叉树，避免了次优算法香农-范诺编码（Shannon–Fano coding）的最大弊端──自顶向下构建树。
+
+1952年，于论文《一种构建极小多余编码的方法》（A Method for the Construction of Minimum-Redundancy Codes）中发表了这个编码方法。
+
+问题定义与解法
+
+Fig.1
+
+Fig.2霍夫曼编码演算步骤, 左右树排列顺序可以加限制或不加限制
+
+Fig.3
+广义
+给定
+一组符号（Symbol）和其对应的权重值（weight），其权重通常表示成概率（%）。
+欲知
+一组二元的前置码，其二元码的长度为最短。
+狭义
+输入
+符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，其S集合的大小为{\displaystyle n}n。
+权重集合{\displaystyle W=\left\{w_{1},w_{2},\cdots ,w_{n}\right\}}W = \left\{w_{1},w_{2},\cdots,w_{n}\right\}，其W集合不为负数且{\displaystyle w_{i}=\mathrm {weight} \left(s_{i}\right),1\leq i\leq n}w_{i} = \mathrm{weight}\left(s_{i}\right), 1\leq i \leq n。
+输出
+一组编码{\displaystyle C\left(S,W\right)=\left\{c_{1},c_{2},\cdots ,c_{n}\right\}}C \left(S,W\right) = \left\{c_{1},c_{2},\cdots,c_{n}\right\}，其C集合是一组二进制编码且{\displaystyle c_{i}}c_{i}为{\displaystyle s_{i}}s_{i}相对应的编码，{\displaystyle 1\leq i\leq n}1\leq i \leq n。
+目标
+设{\displaystyle L\left(C\right)=\sum _{i=1}^{n}{w_{i}\times \mathrm {length} \left(c_{i}\right)}}L \left(C\right) = \sum_{i=1}^{n}{w_{i}\times\mathrm{length}\left(c_{i}\right)}为{\displaystyle C}C的加权的路径长，对所有编码{\displaystyle T\left(S,W\right)}T \left(S,W\right)，则{\displaystyle L\left(C\right)\leq L\left(T\right)}L\left(C\right) \leq L\left(T\right)
+示例
+霍夫曼树常处理符号编写工作。根据整组数据中符号出现的频率高低，决定如何给符号编码。如果符号出现的频率越高，则给符号的码越短，相反符号的号码越长。假设我们要给一个英文单字"F O R G E T"进行霍夫曼编码，而每个英文字母出现的频率分别列在Fig.1。
+
+演算过程
+（一）进行霍夫曼编码前，我们先创建一个霍夫曼树。
+
+⒈将每个英文字母依照出现频率由小排到大，最小在左，如Fig.1。
+⒉每个字母都代表一个终端节点（叶节点），比较F.O.R.G.E.T六个字母中每个字母的出现频率，将最小的两个字母频率相加合成一个新的节点。如Fig.2所示，发现F与O的频率最小，故相加2+3=5。
+⒊比较5.R.G.E.T，发现R与G的频率最小，故相加4+4=8。
+⒋比较5.8.E.T，发现5与E的频率最小，故相加5+5=10。
+⒌比较8.10.T，发现8与T的频率最小，故相加8+7=15。
+⒍最后剩10.15，没有可以比较的对象，相加10+15=25。
+最后产生的树状图就是霍夫曼树，参考Fig.2。
+（二）进行编码
+1.给霍夫曼树的所有左链接'0'与右链接'1'。
+2.从树根至树叶依序记录所有字母的编码，如Fig.3。
+实现方法
+数据压缩
+实现霍夫曼编码的方式主要是创建一个二叉树和其节点。这些树的节点可以存储在数组里，数组的大小为符号（symbols）数的大小n，而节点分别是终端节点（叶节点）与非终端节点（内部节点）。
+
+一开始，所有的节点都是终端节点，节点内有三个字段：
+
+1.符号（Symbol）
+
+2.权重（Weight、Probabilities、Frequency）
+
+3.指向父节点的链接（Link to its parent node）
+
+而非终端节点内有四个字段：
+
+1.权重（Weight、Probabilities、Frequency）
+
+2.指向两个子节点的 链接（Links to two child node）
+
+3.指向父节点的链接（Link to its parent node）
+
+基本上，我们用'0'与'1'分别代表指向左子节点与右子节点，最后为完成的二叉树共有n个终端节点与n-1个非终端节点，去除了不必要的符号并产生最佳的编码长度。
+
+过程中，每个终端节点都包含着一个权重（Weight、Probabilities、Frequency），两两终端节点结合会产生一个新节点，新节点的权重是由两个权重最小的终端节点权重之总和，并持续进行此过程直到只剩下一个节点为止。
+
+实现霍夫曼树的方式有很多种，可以使用优先队列（Priority Queue）简单达成这个过程，给与权重较低的符号较高的优先级（Priority），算法如下：
+
+⒈把n个终端节点加入优先队列，则n个节点都有一个优先权Pi，1 ≤ i ≤ n
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列中移除两个最小的Pi节点，即连续做两次remove（min（Pi）, Priority_Queue)
+⑵产生一个新节点，此节点为（1）之移除节点之父节点，而此节点的权重值为（1）两节点之权重和
+⑶把（2）产生之节点加入优先队列中
+⒊最后在优先队列里的点为树的根节点（root）
+
+而此算法的时间复杂度（ Time Complexity）为O（n log n）；因为有n个终端节点，所以树总共有2n-1个节点，使用优先队列每个循环须O（log n）。
+
+此外，有一个更快的方式使时间复杂度降至线性时间（Linear Time）O（n），就是使用两个队列（Queue）创件霍夫曼树。第一个队列用来存储n个符号（即n个终端节点）的权重，第二个队列用来存储两两权重的合（即非终端节点）。此法可保证第二个队列的前端（Front）权重永远都是最小值，且方法如下：
+
+⒈把n个终端节点加入第一个队列（依照权重大小排列，最小在前端）
+
+⒉如果队列内的节点数>1，则：
+
+⑴从队列前端移除两个最低权重的节点
+⑵将（1）中移除的两个节点权重相加合成一个新节点
+⑶加入第二个队列
+⒊最后在第一个队列的节点为根节点
+
+虽然使用此方法比使用优先队列的时间复杂度还低，但是注意此法的第1项，节点必须依照权重大小加入队列中，如果节点加入顺序不按大小，则需要经过排序，则至少花了O（n log n）的时间复杂度计算。
+
+但是在不同的状况考量下，时间复杂度并非是最重要的，如果我们今天考虑英文字母的出现频率，变量n就是英文字母的26个字母，则使用哪一种算法时间复杂度都不会影响很大，因为n不是一笔庞大的数字。
+
+数据解压缩
+简单来说，霍夫曼码树的解压缩就是将得到的前置码（Prefix Huffman code）转换回符号，通常借由树的追踪（Traversal），将接收到的位串（Bits stream）一步一步还原。但是要追踪树之前，必须要先重建霍夫曼树；某些情况下，如果每个符号的权重可以被事先预测，那么霍夫曼树就可以预先重建，并且存储并重复使用，否则，发送端必须预先发送霍夫曼树的相关信息给接收端。
+
+最简单的方式，就是预先统计各符号的权重并加入至压缩之位串，但是此法的运算量花费相当大，并不适合实际的应用。若是使用Canonical encoding，则可精准得知树重建的数据量只占B2^B比特（其中B为每个符号的比特数（bits））。如果简单将接收到的位串一个比特一个比特的重建，例如：'0'表示父节点，'1'表示终端节点，若每次读取到1时，下8个比特则会被解读是终端节点（假设数据为8-bit字母），则霍夫曼树则可被重建，以此方法，数据量的大小可能为2~320字节不等。虽然还有很多方法可以重建霍夫曼树，但因为压缩的数据串包含"trailing bits"，所以还原时一定要考虑何时停止，不要还原到错误的值，如在数据压缩时时加上每笔数据的长度等。
+
+基本性质
+考量到不同的应用领域以及该领域的平均性质，将会使用不同的通用几率，又或者，这个几率是可以从被压缩文本中的实际频率所获取。
+
+最优化
+原始的霍夫曼算法是一个符号与符号间已知输入几率分布的最佳编码方式，也就是说将不相关的符号个别编码为如此的数据流。然而，当符号间的限制被舍弃或是质量几率函数是未知的时候，如此方式则并非最优化。此外，当这些符号之间不是互相独立，且分布不相同的时候，单一一个符号可能不足以实现最优化。在这种情况之下，算术编码可能比起霍夫曼编码会有更佳的压缩能力。
+
+虽然上述两种方法都可以组合任意数量的符号以实现更高效的编码效果，并且通常适应于实际的输入统计层面，但尽管最简单的版本比霍夫曼编码更慢且更复杂，算术编码不会显著增加其计算或算法复杂度。当输入概率不是精确已知或在流内显著变化时，这种灵活性特别有用。然而，霍夫曼编码通常更快，并且算术编码在历史上是专利问题的一些主题。因此，许多技术历来避免使用有利于霍夫曼和其他前缀编码技术的算术编码。截至2010年中期，随着早期专利的到期，这种替代霍夫曼编码的最常用技术已经进入公有领域。
+
+对于具有均匀概率分布的一组符号，以及作为2的幂之成员，霍夫曼编码等同于简单的二进位制编码，例如 ASCII 编码。这反映了如此的事实：无论压缩方法是什么，这种输入都不可能进行压缩，或只是说对数据无所作为，比起压缩才是才是最佳选择。
+
+在任何情况下，霍夫曼编码在所有方法中是最佳的方式，其中每个输入符号是具有二元几率的已知独立且相同分布的随机变量。前缀码，特别是霍夫曼编码，往往在小字母表上产生较差的效率，其中概率通常落在这些最佳（二元）点之间。当最可能符号的概率远超过0.5时，可能发生霍夫曼编码的最坏情况，使低效率的上限无限制。
+
+在使用霍夫曼编码的同时，有两种相关的方法可以解决这种特定的低效问题。将固定数量的符号组合在一起（阻塞）通常会增加（并且永不减少）压缩。随着块的大小接近无穷大，霍夫曼编码理论上接近熵限制，即最佳压缩。然而，阻塞任意大的符号组是不切实际的，因为霍夫曼代码的复杂性在要编码的可能性的数量上是线性的，这是在块的大小中呈指数的数字。这限制了在实践中完成的阻塞量。
+
+广泛使用的实际替代方案是行程编码。该技术在熵编码之前增加一步，特别是对重复符号进行运行次数的计数，然后对其进行编码。对于伯努力（Bernoulli）过程的简单情况，哥伦（Golomb）编码在编码游程长度的前缀码中是最佳的，这是通过霍夫曼编码技术证明的事实。使用改进的霍夫曼编码的传真机采用类似的方法。但是，游程编码并不像其他压缩技术那样适应许多输入类型。
+
+变化
+霍夫曼编码有派生出许多的许多变化，其中一些使用类似霍夫曼的算法，而其他一些算法找到最佳前缀码（例如，对输出施加不同的限制）。注意，在后一种情况下，该方法不需要像霍夫曼那样，实际上甚至不需要到多项式复杂度。
+
+多元树霍夫曼编码
+多元树霍夫曼编码算法使用字母集 {0, 1, ... , n − 1} ，来构建一棵 n 元树。霍夫曼在他的原始论文中考虑了这种方法。这与二进制（n=2）算法仅有的差别，就是它每次把 n 个最低权的符号合并，而不仅是两个最低权的符号。倘若 n ≥ 2, 则并非所有源字集都可以正确地形成用于霍夫曼编码的多元树。在这些情况下，必须添加额外的零概率占位符。这是因为该树必须为满的 n 叉树，所以每次合并会令符号数恰好减少 (n -1), 故这样的 n 叉树存在当且仅当源字的数量模 (n -1) 余 1. 对于二进制编码，任何大小的集合都可以形成这样的二叉树，因为 n -1 = 1.
+
+自适应霍夫曼编码
+自适应霍夫曼编码的变化，涉及基于源符号序列中的最近实际频率动态地计算概率，以及改变编码树结构以匹配更新的概率估计。它在实践中很少使用，因为更新树的成本使其比优化的自适应算术编码慢，后者更灵活并且具有更好的压缩。
+
+霍夫曼模板算法
+在霍夫曼编码的实现中，通常会使用权重表示数值概率，但是上面给出的算法不需要这样;它只需要权重形成一个完全有序的可交换幺半群，这意味着一种订购权重和添加权重的方法。霍夫曼模板算法使人们能够使用任何类型的权重（成本，频率，权重对，非数字权重）和许多组合方法之一（不仅仅是加法），这个问题首先应用于电路设计。
+
+长度限制霍夫曼编码/最小变异霍夫曼编码
+长度限制霍夫曼编码
+长度受限的霍夫曼编码是一种变体，其目标仍然是实现最小加权路径长度，但是存在另外的限制，即每个码字的长度必须小于给定常量。包合并算法通过一种与霍夫曼算法非常相似的简单贪婪方法解决了这个问题。
+
+不相等成本霍夫曼编码
+在标准的霍夫曼编码问题中，假设集合中构成码字的每个符号具有相同的传输成本：长度为N位的码字总是具有N的成本，无论多少这些数字是0，有多少是1，等等。在这个假设下工作时，最小化消息的总成本和最小化数字总数是相同的。
+
+具有不等字母成本的霍夫曼编码是没有这种假设的概括：由于传输介质的特性，编码字母表的字母可能具有不均匀的长度。一个例子是摩尔斯电码的编码字母表，其中'破折号'比'点'需要更长的发送时间，因此传输时间中破折号的成本更高。目标仍然是最小化加权平均码字长度，但仅仅最小化消息使用的符号数量已经不够了。没有算法以与传统霍夫曼编码相同的方式或相同的效率来解决这个问题，尽管它已经由卡普（Karp）解决，其解决方案已经针对哥林（Golin）的整数成本的情况进行了改进。
+
+最佳字母二叉树
+在标准霍夫曼编码问题中，假设任何码字可以对应于任何输入符号。在字母表中，输入和输出的字母顺序必须相同。
+
+规范霍夫曼编码
+如果对应于按字母顺序排列的输入的权重是按数字顺序排列的，则霍夫曼代码具有与最佳字母代码相同的长度，这可以从计算这些长度中找到，从而不需要使用胡 - 塔克（Hu-Tucker）编码。由数字（重新）有序输入产生的代码有时被称为规范霍夫曼代码，并且由于易于编码/解码，通常是实践中使用的代码。用于找到该代码的技术有时被称为霍夫曼 - 香农 - 法诺编码，因为它像霍夫曼编码一样是最优的，但是在重量概率上是字母的，例如香农 - 法诺编码。
+
+数据长度
+设符号集合{\displaystyle S=\left\{s_{1},s_{2},\cdots ,s_{n}\right\}}S = \left\{s_{1},s_{2},\cdots,s_{n}\right\}，{\displaystyle P\left(s_{j}\right)}P\left(s_{j}\right)为{\displaystyle s_{j}} s_{j}发生的几率 ，{\displaystyle L\left(s_{j}\right)}L\left(s_{j}\right)为{\displaystyle s_{j}}{\displaystyle s_{j}}编码的长度
+
+熵（Entropy）:乱度
+{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}{\displaystyle entropy=-\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ln {P\left(s_{j}\right)}}}
+ex:
+{\displaystyle P(S_{0})=1,entropy=0}{\displaystyle P(S_{0})=1,entropy=0}
+{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}{\displaystyle P(S_{0})=P(S_{1})=0.5,entropy=0.6931}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=P(S_{4})=0.2,entropy=1.6094}
+{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}{\displaystyle P(S_{0})=P(S_{1})=P(S_{2})=P(S_{3})=0.1,P(S_{4})=0.6,entropy=1.2275}
+第三与第四个示例，同样是五种组合，几率分布越集中，则乱度越少
+
+霍夫曼码平均长度
+{\displaystyle mean\left(L\right)=\sum _{j=1}^{J}{P\left(s_{j}\right)\times \ L\left(s_{j}\right)}} mean \left(L \right) = \sum_{j=1}^{J}{P \left(s_{j}\right)\times\ L \left(s_{j}\right)}
+霍夫曼码的长度
+Shannon编码定理： {\displaystyle entropy \over logk}entropy \over logk ≤ {\displaystyle mean\left(L\right)} mean \left(L \right) ≤ {\displaystyle entropy \over logk}entropy \over logk {\displaystyle +1}+ 1  ，若使用{\displaystyle k}k进位的编码
+霍夫曼码的平均编码长度：设{\displaystyle b=mean\left(L\right)N}b = mean \left(L \right) N ，{\displaystyle N}N为数据长度
+
+{\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk ≤ {\displaystyle b}b ≤ {\displaystyle N}N{\displaystyle entropy \over logk} entropy \over logk {\displaystyle +N}+ N 
+示例
+当有100个位子，有白色占60%、咖啡色占20%，蓝色和红色各占10%，则该如何分配才能最优化此座位?
+(a)direct:
+假设结果为：白色为00、咖啡色01，蓝色10和红色11个bits 则结果为:100*2 = 200bits
+(b)huffman code: (must be satisfy the following conditions，if not change the node)
+(1) 所有码皆在Coding Tree的端点，再下去没有分枝(满足一致解码跟瞬间解码)
+(2) 几率越大，code length越短；几率越小，code length越长
+(3) 假设{\displaystyle S_{a}}S_{a}是第L层的node，{\displaystyle S_{b}}{\displaystyle S_{b}}是第L+1层的node
+   則
+  
+    
+    {\displaystyle P(S_{a})\geq P(S_{b})}
+  
+{\displaystyle P(S_{a})\geq P(S_{b})}必須滿足
+
+假设结果为：白色占0、咖啡色10，蓝色110和红色111个bits
+则结果为:60*1+20*2+20*3=160bits
+
+相互比较两个结果huffman code 整整少了40bits的存储空间。
+示范程序
+// 以下為C++程式碼，在G++下編譯通過
+// 僅用於示範如何根據權值建構霍夫曼樹，
+// 沒有經過性能上的優化及加上完善的異常處理。
+#include <cstdlib>
+#include <iostream>
+#include <deque>
+#include <algorithm>
+
+using namespace std;
+
+const int size = 10;
+struct node {                               // 霍夫曼樹節點結構
+    unsigned key;                           // 保存權值
+    node *lchild;                           // 左孩子指針
+    node *rchild;                           // 右孩子指針
+};
+deque<node *> forest;
+deque<bool> code;                           // 此處也可使用bitset
+node *ptr;
+int frequency[size] = {0};
+
+void printCode(deque<bool> ptr);            // 用於輸出霍夫曼編碼
+
+bool compare( node *a, node *b) {
+    return a->key < b->key;
+}
+int main(int argc, char *argv[]) {
+    for (int i = 0; i < size; i++) {
+        cin >> frequency[i];                // 輸入10個權值
+        ptr = new node;
+        ptr->key = frequency[i];
+        ptr->lchild = NULL;
+        ptr->rchild = NULL;
+        forest.push_back(ptr);
+    } // 形成森林，森林中的每一棵樹都是一個節點
+    // 從森林構建霍夫曼樹
+    for (int i = 0; i < size - 1; i++) {
+        sort(forest.begin(), forest.end(), compare);
+        ptr = new node;
+        // 以下代碼使用下標索引隊列元素，具有潛在危險，使用時請注意
+        ptr->key = forest[0]->key + forest[1]->key;
+        ptr->lchild = forest[0];
+        ptr->rchild = forest[1];
+        forest.pop_front();
+        forest.pop_front();
+        forest.push_back(ptr);
+    }
+    ptr = forest.front(); // ptr是一個指向根的指針
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
+
+void printCode(deque<bool> ptr) {
+    // deque<bool>
+    for (int i = 0; i < ptr.size(); i++) {
+        if (ptr[i])
+            cout << "1";
+        else
+            cout << "0";
+    }
+}
+参考文献
+Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein. Introduction to Algorithms, Second Edition. MIT Press and McGraw-Hill, 2001. ISBN 0-262-03293-7. Section 16.3, pp. 385–392.
+外部链接
+有关霍夫曼压缩技术的原文：D.A. Huffman, "A method for the construction of minimum-redundancy codes", Proceedings of the I.R.E., sept 1952, pp 1098-1102
+霍夫曼树图形演示
+Animation of the Huffman Algorithm: Algorithm Simulation by Simon Mescal
+Background story: Profile: David A. Huffman, Scientific American, Sept. 1991, pp. 54-58
+n-ary Huffman Template Algorithm
+Huffman codes' connection with Fibonacci and Lucas numbers
+Fibonacci connection between Huffman codes and Wythoff array
+Sloane A098950 Minimizing k-ordered sequences of maximum height Huffman tree
+Computing Huffman codes on a Turing Machine
+Mordecai J. Golin, Claire Kenyon, Neal E. Young "Huffman coding with unequal letter costs", STOC 2002: 785-791
+Huffman Coding, implemented in python
