@@ -67,3 +67,6 @@ vim /etc/lightdm/lightdm-gtk-greeter.conf
 编辑配置文件:
 [greeter]
 keyboard=florence --no-gnome --focus &
+
+## 链接显示屏无反应的解决  
+从github中下载LCD-Show库,运行其中的LCD-HDMI文件.
